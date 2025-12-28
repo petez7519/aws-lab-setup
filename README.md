@@ -95,14 +95,14 @@ These concepts appear repeatedly on the SAA‑C03 exam and in real AWS architect
 
 🚀 Deployment Instructions
 1. Initialize Terraform
-bash
 terraform init
+
 2. Review the plan
-bash
 terraform plan
-3. Apply
-bash
+
+4. Apply
 terraform apply
+
 Before deploying, update:
 key_name → Your EC2 key pair name
 
