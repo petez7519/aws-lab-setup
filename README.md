@@ -1,132 +1,103 @@
-AWS SAA‑C03 Study Lab — Terraform VPC, Bastion Host, Private EC2, and NAT Gateway
-This repository contains a hands‑on AWS networking lab built with Terraform, designed to support preparation for the AWS Solutions Architect Associate (SAA‑C03) certification.
-It deploys a realistic, exam‑aligned VPC architecture that demonstrates secure access patterns, subnet isolation, routing, and foundational AWS networking services.
+🌐 AWS SAA‑C03 Study Lab
+Terraform‑Built VPC • Bastion Host • Private EC2 • NAT Gateway
+<p align="center">
+<img src="https://img.shields.io/badge/AWS-SAA--C03-blue?style=for-the-badge&logo=amazonaws" />
+<img src="https://img.shields.io/badge/Terraform-Infrastructure%20as%20Code-7B42BC?style=for-the-badge&logo=terraform" />
+<img src="https://img.shields.io/badge/Cloud-Networking-orange?style=for-the-badge&logo=cloudflare" />
+</p>
 
-📘 Purpose of This Lab
-This lab is intentionally simple, modular, and aligned with the SAA‑C03 exam blueprint.
-It helps you build intuition around:
+This repository contains a clean, exam‑aligned AWS networking lab built with Terraform, designed to help you master the core VPC concepts required for the AWS Solutions Architect Associate (SAA‑C03) certification.
 
-Designing secure VPC architectures
+It deploys a realistic, secure, production‑style architecture — perfect for hands‑on learning, interviews, and certification prep.
 
-Public vs. private subnet patterns
+🧭 What You’ll Build
+A fully functional AWS network environment featuring:
+
+1 VPC (10.0.0.0/16)
+
+Public Subnet with:
+
+Bastion Host
+
+NAT Gateway
+
+Internet Gateway
+
+Private Subnet with:
+
+Private EC2 instance (no public IP)
+
+Security Groups enforcing least‑privilege access
+
+Route Tables for public + private routing
+
+🏗️ Architecture Diagram
+Code
+                         ┌──────────────────────────────┐
+                         │          Internet             │
+                         └──────────────┬───────────────┘
+                                        │
+                              ┌─────────▼─────────┐
+                              │  Internet Gateway  │
+                              └─────────┬─────────┘
+                                        │
+                         ┌──────────────▼────────────────┐
+                         │        Public Subnet           │
+                         │        10.0.1.0/24             │
+                         │                                │
+                         │  ┌──────────────────────────┐  │
+                         │  │      Bastion Host        │  │
+                         │  │   (Public EC2 Instance)  │  │
+                         │  └──────────────────────────┘  │
+                         │                                │
+                         │  ┌──────────────────────────┐  │
+                         │  │       NAT Gateway        │  │
+                         │  └──────────────────────────┘  │
+                         └──────────────┬─────────────────┘
+                                        │
+                              ┌─────────▼─────────┐
+                              │   Private Route    │
+                              │   0.0.0.0/0 → NAT  │
+                              └─────────┬─────────┘
+                                        │
+                         ┌──────────────▼────────────────┐
+                         │        Private Subnet          │
+                         │        10.0.2.0/24             │
+                         │                                │
+                         │  ┌──────────────────────────┐  │
+                         │  │     Private EC2          │  │
+                         │  │ (No Public IP Address)   │  │
+                         │  └──────────────────────────┘  │
+                         └────────────────────────────────┘
+🎯 Why This Lab Matters (SAA‑C03 Focus)
+This lab directly reinforces high‑value exam topics:
+
+VPC design fundamentals
+
+Public vs. private subnet isolation
 
 NAT Gateway vs. Internet Gateway
 
-Bastion host access flows
+Bastion host access patterns
 
-Security group design and least privilege
+Security group chaining
 
-Route table configuration
+Route table behavior
 
-EC2 connectivity and SSH patterns
+Private instance internet access
 
-Private subnet internet access
+SSH jump‑host patterns
 
-These concepts appear repeatedly on the SAA‑C03 exam and in real‑world AWS architectures.
+These concepts appear repeatedly on the SAA‑C03 exam and in real AWS architectures.
 
-🏗️ Architecture Overview
-Terraform provisions the following AWS infrastructure:
-
-VPC
-CIDR: 10.0.0.0/16
-
-Provides isolated networking for the lab
-
-Subnets
-Public Subnet (10.0.1.0/24)
-
-Auto‑assigns public IPs
-
-Hosts the Bastion Host
-
-Contains the NAT Gateway
-
-Private Subnet (10.0.2.0/24)
-
-No public IPs
-
-Hosts the Private EC2 instance
-
-Internet Gateway
-Attached to the VPC
-
-Enables outbound internet access for the public subnet
-
-NAT Gateway
-Lives in the public subnet
-
-Allows private EC2 instances to reach the internet
-
-Prevents inbound connections from the internet
-
-Route Tables
-Public Route Table
-
-0.0.0.0/0 → Internet Gateway
-
-Associated with the public subnet
-
-Private Route Table
-
-0.0.0.0/0 → NAT Gateway
-
-Associated with the private subnet
-
-Security Groups
-Bastion SG
-
-Allows SSH only from your IP
-
-Outbound allowed to anywhere
-
-Private EC2 SG
-
-Allows SSH only from the Bastion SG
-
-No inbound internet access
-
-EC2 Instances
-Bastion Host
-
-Amazon Linux 2
-
-Public subnet
-
-Public IP
-
-Used to SSH into private resources
-
-Private EC2 Instance
-
-Amazon Linux 2
-
-Private subnet
-
-No public IP
-
-Only reachable through the Bastion Host
-
-🔐 Access Pattern
-This lab demonstrates a classic secure access pattern:
-
-SSH from your laptop → Bastion Host (public IP)
-
-SSH from Bastion Host → Private EC2 (private IP)
-
-Private EC2 uses NAT Gateway for outbound internet
-
-No inbound traffic reaches the private subnet
-
-This pattern is heavily tested on the SAA‑C03 exam.
-
-📦 Deployment Instructions
+🚀 Deployment Instructions
 1. Initialize Terraform
 bash
 terraform init
 2. Review the plan
 bash
 terraform plan
-3. Deploy
+3. Apply
 bash
 terraform apply
 Before deploying, update:
@@ -134,13 +105,26 @@ key_name → Your EC2 key pair name
 
 Your IP address in the Bastion SG ingress rule
 
+🔐 Access Pattern
+This lab uses a secure, exam‑relevant SSH flow:
+
+Your laptop → Bastion Host (public IP)
+
+Bastion Host → Private EC2 (private IP)
+
+Private EC2 → Internet via NAT Gateway
+
+No inbound internet access to private subnet
+
+This is the gold‑standard pattern for secure VPC access.
+
 🧹 Cleanup
-To remove all AWS resources created by this lab:
+Destroy all resources:
 
 bash
 terraform destroy
-📚 Ideal For
-AWS SAA‑C03 exam preparation
+📚 Perfect For
+AWS SAA‑C03 exam prep
 
 Hands‑on VPC networking practice
 
@@ -150,6 +134,8 @@ Practicing secure SSH access patterns
 
 Building foundational AWS architecture skills
 
+Demonstrating IaC proficiency in interviews
+
 📝 Notes
-This lab intentionally focuses on core VPC networking, which is a major portion of the SAA‑C03 exam.
+This lab intentionally focuses on core VPC networking, which is heavily tested on the SAA‑C03 exam.
 It avoids advanced services (ALB, ASG, RDS, TGW, etc.) to keep the learning focused and approachable.
